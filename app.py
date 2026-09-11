@@ -5,6 +5,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Mirror Streamlit Cloud Secrets into os.environ
+try:
+    if hasattr(st, "secrets"):
+        for key, val in st.secrets.items():
+            if isinstance(val, str) and key not in os.environ:
+                os.environ[key] = val
+except Exception:
+    pass
+
 from agents import build_reader_agent, build_search_agent, writer_chain, critic_chain
 
 def _extract_content(agent_output) -> str:
