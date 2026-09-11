@@ -413,8 +413,8 @@ with col_pipeline:
 if run_btn:
     if not topic.strip():
         st.warning("Please enter a research topic first.")
-    elif not os.getenv("OPENAI_API_KEY"):
-        st.error("⚠️ OPENAI_API_KEY is not set. Please add it to your .env file.")
+    elif not (os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or os.getenv("OPENAI_API_KEY")):
+        st.error("⚠️ GEMINI_API_KEY is not set. Please add it to your .env file.")
     elif not os.getenv("TAVILY_API_KEY"):
         st.error("⚠️ TAVILY_API_KEY is not set. Please add it to your .env file.")
     else:

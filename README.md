@@ -5,6 +5,7 @@
 **An autonomous multi-agent pipeline that conducts real-time web intelligence gathering, deep content extraction, structured technical synthesis, and automated peer review.**
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg?logo=python&logoColor=white)](https://www.python.org/)
+[![Google Gemini](https://img.shields.io/badge/LLM-Google%20Gemini-8E75B2.svg?logo=google&logoColor=white)](https://ai.google.dev/)
 [![LangChain](https://img.shields.io/badge/Orchestration-LangChain-1C3C3C.svg?logo=chainlink)](https://www.langchain.com/)
 [![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B.svg?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -22,7 +23,7 @@
 
 ## 💡 Overview
 
-Modern LLMs struggle with hallucinations, stale knowledge cutoffs, and unstructured outputs when handling open-ended technical research. **ResearchMind** addresses this by decomposing complex research tasks into a coordinated, multi-agent workflow:
+Modern LLMs struggle with hallucinations, stale knowledge cutoffs, and unstructured outputs when handling open-ended technical research. **ResearchMind** addresses this by decomposing complex research tasks into a coordinated, multi-agent workflow powered by **Google Gemini** models:
 
 1. **Search Agent**: Formulates queries and gathers real-time search index snippets via Tavily API.
 2. **Reader Agent**: Autonomously selects high-signal URLs, crawls the DOM, decomposes boilerplate/scripts, and extracts dense technical context.
@@ -53,10 +54,10 @@ flowchart TD
 
 | Stage | Input | Agent / Chain | Output |
 | :--- | :--- | :--- | :--- |
-| **01. Search** | Topic query | Search Agent (`gpt-4o-mini` + Tavily) | Top 5 SERP titles, URLs, and contextual snippets |
-| **02. Deep Read** | SERP results + Topic | Reader Agent (`gpt-4o-mini` + Web Scraper) | Sanitized 3,000-char DOM text extraction |
-| **03. Synthesis** | Search + Scraped Text | Writer Chain (`gpt-4o-mini` + Prompt Template) | Formatted Markdown report with sources |
-| **04. Peer Review**| Draft Report | Critic Chain (`gpt-4o-mini` + Evaluation Rubric) | Score (X/10), Strengths, Improvement Areas, Verdict |
+| **01. Search** | Topic query | Search Agent (`gemini-1.5-flash` + Tavily) | Top 5 SERP titles, URLs, and contextual snippets |
+| **02. Deep Read** | SERP results + Topic | Reader Agent (`gemini-1.5-flash` + Web Scraper) | Sanitized 3,000-char DOM text extraction |
+| **03. Synthesis** | Search + Scraped Text | Writer Chain (`gemini-1.5-flash` + Prompt Template) | Formatted Markdown report with sources |
+| **04. Peer Review**| Draft Report | Critic Chain (`gemini-1.5-flash` + Evaluation Rubric) | Score (X/10), Strengths, Improvement Areas, Verdict |
 
 ---
 
@@ -130,13 +131,13 @@ cp .env.example .env
 Populate `.env` with your API credentials:
 
 ```env
-OPENAI_API_KEY=sk-...
+GEMINI_API_KEY=your_gemini_api_key_here
 TAVILY_API_KEY=tvly-...
-OPENAI_MODEL=gpt-4o-mini
+GEMINI_MODEL=gemini-1.5-flash
 ```
 
 > **API Key Providers**:
-> - [OpenAI API Key](https://platform.openai.com/api-keys)
+> - [Google AI Studio (Gemini API Key)](https://aistudio.google.com/app/apikey) (Free tier available)
 > - [Tavily Search API Key](https://tavily.com/) (1,000 free monthly queries)
 
 ---
@@ -183,7 +184,7 @@ Check out [`examples/sample_report.md`](examples/sample_report.md) for an unedit
 
 If you are showcasing this project on your resume or portfolio, here are suggested bullet points:
 
-- **Built an autonomous multi-agent research pipeline** using LangChain, OpenAI GPT-4o-mini, and Tavily API that decomposes open-ended topics into search, web scraping, synthesis, and critique phases.
+- **Built an autonomous multi-agent research pipeline** using LangChain, Google Gemini (1.5 Flash), and Tavily API that decomposes open-ended topics into search, web scraping, synthesis, and critique phases.
 - **Engineered an anti-hallucination web-grounding engine** with BeautifulSoup4 to scrape, clean, and extract dense contextual text from primary web sources.
 - **Implemented an automated evaluation loop (Critic Chain)** scoring draft research across factual accuracy, structure, and depth with actionable feedback.
 - **Designed a real-time reactive dashboard** in Streamlit with asynchronous step tracking, markdown rendering, and instant export capability.

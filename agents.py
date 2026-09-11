@@ -25,9 +25,20 @@ except ImportError:
             agent = create_tool_calling_agent(model, tools, prompt)
             return AgentExecutor(agent=agent, tools=tools)
 
-# Model setup
-model_name = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-llm = ChatOpenAI(model=model_name, temperature=0)
+# Model setup: Google Gemini
+gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+gemini_model = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+
+try:
+    from langchain_google_genai import ChatGoogleGenerativeAI
+    llm = ChatGoogleGenerativeAI(
+        model=gemini_model,
+        google_api_key=gemini_key,
+        temperature=0.1
+    )
+except ImportError:
+    from langchain_openai import ChatOpenAI
+    llm = ChatOpenAI(model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"), temperature=0)
 
 # 1st agent: Web Search
 def build_search_agent():
