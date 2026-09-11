@@ -1,29 +1,46 @@
-from langchain.agents import create_agent
+import os
+from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from tools import web_search , scrape_url 
-from dotenv import load_dotenv
+from tools import web_search, scrape_url
 
 load_dotenv()
 
-#model setup 
-llm = ChatOpenAI(model = "gpt-4o-mini",temperature=0)
+# Safe import across LangChain v1.0 / LangGraph prebuilt
+try:
+    from langchain.agents import create_agent
+except ImportError:
+    try:
+        from langgraph.prebuilt import create_react_agent as create_agent
+    except ImportError:
+        from langchain.agents import create_tool_calling_agent, AgentExecutor
+        from langchain_core.prompts import MessagesPlaceholder
+        def create_agent(model, tools):
+            prompt = ChatPromptTemplate.from_messages([
+                ("system", "You are an intelligent autonomous research assistant."),
+                MessagesPlaceholder(variable_name="messages"),
+                MessagesPlaceholder(variable_name="agent_scratchpad"),
+            ])
+            agent = create_tool_calling_agent(model, tools, prompt)
+            return AgentExecutor(agent=agent, tools=tools)
 
+# Model setup
+model_name = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+llm = ChatOpenAI(model=model_name, temperature=0)
 
-#1st agent 
+# 1st agent: Web Search
 def build_search_agent():
     return create_agent(
-        model = llm,
-        tools= [web_search]
+        model=llm,
+        tools=[web_search]
     )
 
-#2nd agent 
-
+# 2nd agent: Deep Reader & Scraper
 def build_reader_agent():
     return create_agent(
-        model = llm,
-        tools = [scrape_url]
+        model=llm,
+        tools=[scrape_url]
     )
 
 

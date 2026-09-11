@@ -1,6 +1,21 @@
-import streamlit as st
+import os
 import time
+import streamlit as st
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from agents import build_reader_agent, build_search_agent, writer_chain, critic_chain
+
+def _extract_content(agent_output) -> str:
+    """Safely extracts text content from various LangChain/LangGraph agent invocation outputs."""
+    if isinstance(agent_output, dict):
+        if "messages" in agent_output and agent_output["messages"]:
+            last_msg = agent_output["messages"][-1]
+            return getattr(last_msg, "content", str(last_msg))
+        if "output" in agent_output:
+            return str(agent_output["output"])
+    return str(agent_output)
 
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -398,6 +413,10 @@ with col_pipeline:
 if run_btn:
     if not topic.strip():
         st.warning("Please enter a research topic first.")
+    elif not os.getenv("OPENAI_API_KEY"):
+        st.error("⚠️ OPENAI_API_KEY is not set. Please add it to your .env file.")
+    elif not os.getenv("TAVILY_API_KEY"):
+        st.error("⚠️ TAVILY_API_KEY is not set. Please add it to your .env file.")
     else:
         st.session_state.results = {}
         st.session_state.running = True
@@ -414,7 +433,7 @@ if st.session_state.running and not st.session_state.done:
         sr = search_agent.invoke({
             "messages": [("user", f"Find recent, reliable and detailed information about: {topic_val}")]
         })
-        results["search"] = sr["messages"][-1].content
+        results["search"] = _extract_content(sr)
         st.session_state.results = dict(results)
     st.rerun() if False else None   # keep inline for now
 
@@ -428,7 +447,7 @@ if st.session_state.running and not st.session_state.done:
                 f"Search Results:\n{results['search'][:800]}"
             )]
         })
-        results["reader"] = rr["messages"][-1].content
+        results["reader"] = _extract_content(rr)
         st.session_state.results = dict(results)
 
     # ── Step 3: Writer ──
